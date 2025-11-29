@@ -14,7 +14,6 @@ NUM_DOCTORS = 3000
 NUM_PRESCRIPTIONS = 100000
 NUM_SALES = 300000
 
-# --- SUPPLIERS ---
 suppliers = []
 for _ in range(NUM_SUPPLIERS):
     name = fake.unique.company()
@@ -33,14 +32,14 @@ for _ in range(NUM_MEDICINES):
     name = fake.unique.lexify(text="Med????").capitalize()
     brand = random.choice(brands)
     category = random.choice(categories)
-    unit_price = round(random.uniform(5, 2000), 2)  # bigger range
+    unit_price = round(random.uniform(5, 2000), 2)  
     expiry = fake.date_between(start_date="+6m", end_date="+5y").isoformat()
     cur.execute("INSERT INTO medicines (medicine_name, brand, category, unit_price, expiry_date) VALUES (?,?,?,?,?)",
                 (name, brand, category, unit_price, expiry))
     medicines.append(cur.lastrowid)
 
 for supplier_id in suppliers:
-    for med_id in random.sample(medicines, k=random.randint(15, 30)):  # bigger stock
+    for med_id in random.sample(medicines, k=random.randint(15, 30)):  
         quantity = random.randint(100, 2000)
         cur.execute("INSERT OR IGNORE INTO stock (supplier_id, medicine_id, quantity) VALUES (?,?,?)",
                     (supplier_id, med_id, quantity))
@@ -105,3 +104,4 @@ conn.commit()
 conn.close()
 
 print("data generated successfully!")
+
