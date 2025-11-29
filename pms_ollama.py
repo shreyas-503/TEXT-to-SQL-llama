@@ -104,7 +104,6 @@ Strict rules:
 """
 
 def run_sql(sql):
-    """Execute SQL safely on the SQLite database"""
     with engine.connect() as conn:
         try:
             if sql.strip().lower().startswith(("select", "with")):
@@ -120,7 +119,6 @@ def run_sql(sql):
 import re
 
 def clean_sql(output: str) -> str:
-    """Extract only the first valid SQL statement"""
     sql = output.replace("\\n", "\n")
     sql = sql.replace("```sql", "").replace("```", "")
     sql = sql.strip()
@@ -136,7 +134,6 @@ def clean_sql(output: str) -> str:
 
 
 def call_llama(user_question):
-    """Call LLaMA 3 via Ollama and get SQL"""
     prompt = f"{SYSTEM_PROMPT}\n\nUser Question: {user_question}\nSQL:"
     result = subprocess.run(
         ["ollama", "run", "llama3:8b"],  
@@ -162,4 +159,5 @@ if __name__ == "__main__":
                 print("SQL Error:", rows[0]["error"])
         except KeyboardInterrupt:
             print("\nBye!")
+
             break
