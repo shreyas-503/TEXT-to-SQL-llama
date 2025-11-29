@@ -4,17 +4,15 @@ from faker import Faker
 
 fake = Faker("en_IN")
 
-# --- CONNECT TO DB ---
 conn = sqlite3.connect("pharmacy.db")
 cur = conn.cursor()
 
-# --- CONFIG (bigger dataset) ---
-NUM_SUPPLIERS = 30
-NUM_MEDICINES = 100
-NUM_CUSTOMERS = 100
-NUM_DOCTORS = 30
-NUM_PRESCRIPTIONS = 200
-NUM_SALES = 300
+NUM_SUPPLIERS = 500
+NUM_MEDICINES = 5000
+NUM_CUSTOMERS = 50000
+NUM_DOCTORS = 3000
+NUM_PRESCRIPTIONS = 100000
+NUM_SALES = 300000
 
 # --- SUPPLIERS ---
 suppliers = []
@@ -26,7 +24,6 @@ for _ in range(NUM_SUPPLIERS):
                 (name, phone, email))
     suppliers.append(cur.lastrowid)
 
-# --- MEDICINES ---
 categories = ["Antibiotic", "Analgesic", "Antipyretic", "Antacid", "Antihistamine",
               "Antifungal", "Cardiac", "Diabetic", "Respiratory", "Dermatology"]
 brands = ["Cipla", "Sun Pharma", "Lupin", "Dr. Reddy's", "Zydus Cadila", "Glenmark", "Torrent Pharma"]
@@ -42,14 +39,12 @@ for _ in range(NUM_MEDICINES):
                 (name, brand, category, unit_price, expiry))
     medicines.append(cur.lastrowid)
 
-# --- STOCK (supplier ↔ medicine) ---
 for supplier_id in suppliers:
     for med_id in random.sample(medicines, k=random.randint(15, 30)):  # bigger stock
         quantity = random.randint(100, 2000)
         cur.execute("INSERT OR IGNORE INTO stock (supplier_id, medicine_id, quantity) VALUES (?,?,?)",
                     (supplier_id, med_id, quantity))
 
-# --- CUSTOMERS ---
 customers = []
 for _ in range(NUM_CUSTOMERS):
     name = fake.name()
@@ -59,7 +54,6 @@ for _ in range(NUM_CUSTOMERS):
                 (name, phone, email))
     customers.append(cur.lastrowid)
 
-# --- DOCTORS ---
 specializations = ["General Physician", "Pediatrician", "Cardiologist", "Dermatologist", 
                    "Orthopedic", "Endocrinologist", "Neurologist", "Oncologist"]
 doctors = []
@@ -70,7 +64,6 @@ for _ in range(NUM_DOCTORS):
                 (name, specialization))
     doctors.append(cur.lastrowid)
 
-# --- PRESCRIPTIONS ---
 prescriptions = []
 for _ in range(NUM_PRESCRIPTIONS):
     doctor_id = random.choice(doctors)
@@ -81,14 +74,12 @@ for _ in range(NUM_PRESCRIPTIONS):
     pres_id = cur.lastrowid
     prescriptions.append(pres_id)
 
-    # prescription details
     for med_id in random.sample(medicines, k=random.randint(1, 4)):
         dosage = f"{random.randint(1,2)} tablet(s) {random.choice(['OD','BD','TDS'])}"
         duration = random.randint(5, 30)
         cur.execute("INSERT INTO prescription_details (prescription_id, medicine_id, dosage, duration_days) VALUES (?,?,?,?)",
                     (pres_id, med_id, dosage, duration))
 
-# --- SALES ---
 sales = []
 for _ in range(NUM_SALES):
     customer_id = random.choice(customers)
@@ -98,7 +89,6 @@ for _ in range(NUM_SALES):
     sale_id = cur.lastrowid
     sales.append(sale_id)
 
-    # sale details
     total = 0
     for med_id in random.sample(medicines, k=random.randint(1, 6)):
         quantity = random.randint(1, 10)
@@ -107,7 +97,6 @@ for _ in range(NUM_SALES):
         cur.execute("INSERT INTO sale_details (sale_id, medicine_id, quantity, price) VALUES (?,?,?,?)",
                     (sale_id, med_id, quantity, price))
 
-    # payment
     payment_mode = random.choice(["Cash","UPI","Card","NetBanking"])
     cur.execute("INSERT INTO payments (sale_id, amount, payment_mode, payment_date) VALUES (?,?,?,?)",
                 (sale_id, round(total,2), payment_mode, date))
